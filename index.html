@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Our Wedding Music</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f2e9e5;
+  font-family: Georgia, serif;
+}
+
+.player {
+  width: 100%;
+  max-width: 340px;
+  padding: 25px 15px;
+  text-align: center;
+  background: #e1e7ed;
+}
+
+.cd-frame {
+  width: 240px;
+  height: 240px;
+  margin: auto;
+  padding: 8px;
+  border: 3px solid #8754f7;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.record {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle,
+      #080808 0px,
+      #080808 3px,
+      #242424 4px,
+      #080808 6px
+    );
+  border: 5px solid #080808;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.record::before {
+  content: "";
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border: 1px solid #555;
+  border-radius: 50%;
+}
+
+.record img {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 8px solid #999;
+  z-index: 1;
+}
+
+.record.playing {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+h2 {
+  font-size: 21px;
+  font-weight: normal;
+  margin: 25px 0;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  font-size: 24px;
+}
+
+.side-btn{
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #252525;
+}
+
+.side-btn svg{
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #171717;
+  color: white;
+  font-size: 22px;
+}
+
+#toggle:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+
+.status {
+  font-size: 12px;
+  margin-top: 12px;
+  color: #555;
+}
+
+.youtube {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#youtube-player {
+  width: 100%;
+  min-height: 200px;
+}
+
+#youtube-player iframe {
+  width: 100%;
+  min-height: 200px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="player">
+
+  <div class="cd-frame">
+    <div class="record" id="record">
+      <img src="couple.jpg"
+      alt="Our Wedding Photo">
+    </div>
+  </div>
+
+  <h2>The beginning of forever</h2>
+
+  <div class="controls">
+
+  <button class="side-btn"
+          type="button"
+          aria-label="Previous (decorative)">
+    <svg viewBox="0 0 24 24">
+      <path d="M6 5v14 M19 5L8 12l11 7z"/>
+    </svg>
+  </button>
+
+  <button id="toggle"
+          disabled
+          onclick="toggleMusic()"
+          aria-label="Play music">
+    ▶
+  </button>
+
+  <button class="side-btn"
+          type="button"
+          aria-label="Next (decorative)">
+    <svg viewBox="0 0 24 24">
+      <path d="M18 5v14 M5 5l11 7-11 7z"/>
+    </svg>
+  </button>
+
+</div>
+
+  <p class="status" id="status">
+    Loading music player...
+  </p>
+
+  <div class="youtube">
+    <div id="youtube-player"></div>
+  </div>
+
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+
+let player;
+let playing = false;
+let ready = false;
+
+function onYouTubeIframeAPIReady() {
+
+  player = new YT.Player(
+    'youtube-player',
+    {
+      width: '300',
+      height: '200',
+
+      videoId: 'CCcmaG0I7wg',
+
+      playerVars: {
+        playsinline: 1,
+        controls: 1,
+        rel: 0
+      },
+
+      events: {
+
+        onReady: function(event) {
+
+          ready = true;
+
+          document.getElementById(
+            'toggle'
+          ).disabled = false;
+
+          document.getElementById(
+            'status'
+          ).textContent = 'Ready to play';
+
+        },
+
+        onStateChange: function(event) {
+
+          if (
+            event.data ===
+            YT.PlayerState.PLAYING
+          ) {
+
+            playing = true;
+            updatePlayer();
+
+          }
+
+          else if (
+            event.data ===
+            YT.PlayerState.PAUSED ||
+            event.data ===
+            YT.PlayerState.ENDED ||
+            event.data ===
+            YT.PlayerState.BUFFERING ||
+            event.data ===
+            YT.PlayerState.CUED ||
+            event.data ===
+            YT.PlayerState.UNSTARTED
+          ) {
+
+            playing = false;
+            updatePlayer();
+
+          }
+
+        },
+
+        onError: function(event) {
+
+          playing = false;
+          updatePlayer();
+
+          document.getElementById(
+            'status'
+          ).textContent =
+            'This video cannot be embedded.';
+
+        }
+
+      }
+    }
+  );
+
+}
+
+function toggleMusic() {
+
+  if (!ready) return;
+
+  const state = player.getPlayerState();
+
+  if (state === YT.PlayerState.PLAYING) {
+
+    player.pauseVideo();
+
+  } else {
+
+    player.playVideo();
+
+  }
+
+}
+
+function updatePlayer() {
+
+  const record =
+    document.getElementById('record');
+
+  const button =
+    document.getElementById('toggle');
+
+  const status =
+    document.getElementById('status');
+
+  record.classList.toggle(
+    'playing',
+    playing
+  );
+
+  button.textContent =
+    playing ? 'Ⅱ' : '▶';
+
+  button.setAttribute(
+    'aria-label',
+    playing ? 'Pause music' : 'Play music'
+  );
+
+  status.textContent =
+    playing ? 'Now Playing ♪' : 'Music Paused';
+
+}
+
+</script>
+
+</body>
+</html>
